@@ -1,0 +1,70 @@
+import { Link, NavLink, Outlet } from "react-router-dom";
+import { assets } from "../../assets/assets";
+import { useAppContext } from "../../context/appcontext";
+import toast from "react-hot-toast";
+
+const SellerLayout = () => {
+
+const {isSeller,axios,navigate} = useAppContext()
+
+const handleLogout =async function () {
+    try {
+        const {data} = await axios.get("/api/seller/logout")
+        console.log('debug',data)
+        if(data?.success){
+            toast.success(data.message)
+            navigate("/")
+
+        }else{
+            toast.error(data?.response?.data?.message)
+        }
+    } catch (error) {
+        
+        console.log(error?.response?.data?.message)
+        toast.error(error?.response?.data?.message|| error.message)
+    }
+}
+
+
+
+const sidebarLinks = [
+        { name: "Add Product", path: "/seller", icon: assets.add_icon },
+        { name: "Product List", path: "/seller/product-list", icon:assets.product_list_icon  },
+        { name: "Orders", path: "/seller/orders", icon:assets.order_icon  },
+];
+
+    return (
+        <>
+            <div className="flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-white ">
+                <Link to="/">
+                    <img className="cursor-pointer w-34 md:w-38" src={assets.logo} alt="logo"  />
+                </Link>
+                <div className="flex items-center gap-5 text-gray-500">
+                    <p>Hi! Admin</p>
+                    <button className='border rounded-full  px-4 py-1 cursor-pointer text-lg hover:bg-red-400/25 transition' onClick={handleLogout}>Logout</button>
+                </div>
+            </div>
+            <div className="flex">
+                <div className="md:w-64 w-16 border-r h-[95vh] text-base border-gray-300 pt-4 flex flex-col sticky left-0 top-0 z-50">
+                    {sidebarLinks.map((item) => (
+                        <NavLink to={item.path} key={item.name} end={item.path =="/seller"}
+                            className={({isActive})=>`flex items-center py-3 px-4 gap-3 
+                                ${isActive ? "border-r-4 md:border-r-[6px] bg-primary/10 border-primary text-primary"
+                                    : "hover:bg-gray-100/90 border-white "
+                                }`
+                            }
+                        >
+                            <img src={item.icon} alt="icon" className="size-7 " />
+                            <p className="md:block hidden text-center">{item.name}</p>
+                        </NavLink>
+                    ))}
+                </div>
+                <Outlet />
+            </div>
+
+        </>
+
+  )
+}
+
+export default SellerLayout
